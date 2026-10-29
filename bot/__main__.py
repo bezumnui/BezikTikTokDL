@@ -37,6 +37,9 @@ async def main() -> None:
     except RuntimeError:
         await bot.session.close()
         raise
+    me = await bot.me()
+    if not me.supports_inline_queries:
+        log.warning("inline mode is disabled for @%s: enable it in @BotFather -> /setinline", me.username)
     dp = Dispatcher(media=build_media_service(bot, config, publisher), config=config)
     dp.include_routers(inline.router, chat.router)
 
