@@ -1,6 +1,7 @@
 from typing import Protocol
 
 from aiogram import Bot
+from aiogram.exceptions import TelegramAPIError
 from aiogram.types import FSInputFile, InputMediaPhoto
 
 from .models import DownloadedPost, MediaKind, PublishedPost
@@ -17,6 +18,18 @@ class TelegramPublisher:
     def __init__(self, bot: Bot, storage_chat_id: int):
         self._bot = bot
         self._chat_id = storage_chat_id
+
+    async def verify(self) -> str:
+        """Fail fast at startup if the storage chat is unreachable. Returns its title for logging."""
+        try:
+            chat = await self._bot.get_chat(self._chat_id)
+        except TelegramAPIError as e:
+            raise RuntimeError(
+                f"STORAGE_CHAT_ID={self._chat_id} is not reachable ({e.message}). "
+                "Add the bot to that group, or for a user id: send /start to the bot. "
+                "A group upgraded to a supergroup gets a new id starting with -100."
+            ) from e
+        return chat.title or chat.full_name
 
     async def publish(self, post: DownloadedPost) -> PublishedPost:
         if post.kind is MediaKind.VIDEO:

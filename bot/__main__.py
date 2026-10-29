@@ -13,12 +13,12 @@ from .service import MediaService
 log = logging.getLogger("bot")
 
 
-def build_media_service(bot: Bot, config: Config) -> MediaService:
+def build_media_service(bot: Bot, config: Config, publisher: TelegramPublisher) -> MediaService:
     downloader = FallbackDownloader([HttpDownloader(), FirefoxDownloader()])
     log.info("downloaders: %s", downloader.describe())
     return MediaService(
         downloader=downloader,
-        publisher=TelegramPublisher(bot, config.storage_chat_id),
+        publisher=publisher,
         cache=JsonPostCache(config.cache_file),
         work_root=config.work_root,
         max_parallel=config.max_parallel,
@@ -31,7 +31,13 @@ async def main() -> None:
     config = load_config()
 
     bot = Bot(config.bot_token)
-    dp = Dispatcher(media=build_media_service(bot, config), config=config)
+    publisher = TelegramPublisher(bot, config.storage_chat_id)
+    try:
+        log.info("storage chat: %s (%s)", await publisher.verify(), config.storage_chat_id)
+    except RuntimeError:
+        await bot.session.close()
+        raise
+    dp = Dispatcher(media=build_media_service(bot, config, publisher), config=config)
     dp.include_routers(inline.router, chat.router)
 
     try:
