@@ -21,6 +21,10 @@ class Config:
     def cache_file(self) -> Path:
         return self.data_dir / "file_ids.json"
 
+    @property
+    def subscriptions_file(self) -> Path:
+        return self.data_dir / "subscriptions.json"
+
 
 def _path(name: str, default: str) -> Path:
     return Path(os.getenv(name) or default).expanduser().resolve()

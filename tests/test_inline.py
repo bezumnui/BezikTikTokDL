@@ -1,6 +1,8 @@
 import asyncio
 from types import SimpleNamespace
 
+import pytest
+
 from aiogram.types import InlineQueryResultArticle, InlineQueryResultCachedVideo, InputMediaVideo
 
 from bot.handlers.inline import PENDING_PREFIX, chosen, inline_query
@@ -37,6 +39,9 @@ class FakeBot:
     def __init__(self):
         self.calls = []
 
+    async def me(self):
+        return SimpleNamespace(username="bezik_bot")
+
     async def edit_message_media(self, **kwargs):
         self.calls.append(("media", kwargs))
 
@@ -44,23 +49,34 @@ class FakeBot:
         self.calls.append(("text", kwargs))
 
 
-async def test_no_link_shows_help():
+async def test_no_link_shows_help_and_invite():
     query = FakeQuery("hello")
-    await inline_query(query, FakeMedia(), CONFIG)
+    await inline_query(query, FakeBot(), FakeMedia(), CONFIG)
+    help_, invite = query.answers[0][0]
+    assert isinstance(help_, InlineQueryResultArticle) and "@bezik_bot" in help_.input_message_content.message_text
+    assert invite.id.startswith("invite")
+
+
+@pytest.mark.parametrize("text", ["invite", "Invite ", "inv"])
+async def test_invite_sends_invitation(text):
+    query = FakeQuery(text)
+    await inline_query(query, FakeBot(), FakeMedia(error=AssertionError("must not download")), CONFIG)
     [result] = query.answers[0][0]
-    assert isinstance(result, InlineQueryResultArticle)
+    assert "@bezik_bot" in result.input_message_content.message_text
+    buttons = [b for row in result.reply_markup.inline_keyboard for b in row]
+    assert buttons[0].url == "https://t.me/bezik_bot?startgroup=true"
 
 
 async def test_ready_video_is_answered_as_cached_video():
     query = FakeQuery(URL)
-    await inline_query(query, FakeMedia(), CONFIG)
+    await inline_query(query, FakeBot(), FakeMedia(), CONFIG)
     [result] = query.answers[0][0]
     assert isinstance(result, InlineQueryResultCachedVideo) and result.video_file_id == "vid"
 
 
 async def test_slow_download_answers_placeholder_in_time():
     query = FakeQuery(URL)
-    await inline_query(query, FakeMedia(delay=1), CONFIG)
+    await inline_query(query, FakeBot(), FakeMedia(delay=1), CONFIG)
     [result] = query.answers[0][0]
     assert result.id.startswith(PENDING_PREFIX)
     assert result.reply_markup is not None, "inline_message_id is only issued for results with a keyboard"
@@ -68,9 +84,9 @@ async def test_slow_download_answers_placeholder_in_time():
 
 async def test_download_error_is_answered():
     query = FakeQuery(URL)
-    await inline_query(query, FakeMedia(error=DownloadError("x")), CONFIG)
+    await inline_query(query, FakeBot(), FakeMedia(error=DownloadError("x")), CONFIG)
     [result] = query.answers[0][0]
-    assert result.title == "Не получилось скачать"
+    assert result.title == "Couldn't download it"
 
 
 def chosen_result(result_id):
