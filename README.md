@@ -1,8 +1,18 @@
 # BezikTikTokDL
 
 Inline Telegram-бот на aiogram 3 для скачивания видео и фото-слайдов из TikTok.
-Основа — [Fluxticks/TikTokDL](https://github.com/Fluxticks/TikTokDL) (`tiktok-dlpy`), с запасным загрузчиком на Playwright,
-который читает `__UNIVERSAL_DATA_FOR_REHYDRATION__` со страницы (TikTok перестал отдавать `/api/reflow/item/detail/` для многих постов).
+
+## Как скачивается
+
+1. **`http` (основной):** обычный GET страницы поста. В HTML лежит JSON `__UNIVERSAL_DATA_FOR_REHYDRATION__`
+   с прямыми ссылками на медиа; файл качается с cookies этой страницы и `Referer: https://www.tiktok.com/`.
+   Подписи `X-Bogus`/`msToken` не нужны — они требуются только JSON-эндпоинтам `/api/...`. ~1–2 с.
+2. **`firefox` (fallback):** то же самое через headless Firefox (Playwright) — на случай капчи/JS-проверки,
+   которую голый HTTP не проходит. ~3–4 с.
+
+При старте бот пишет цепочку в лог: `downloaders: http (primary) -> firefox (fallback)`.
+Когда основной загрузчик падает, в логе появляется `WARNING ... http failed for <url>: ...; using fallback firefox`,
+при успехе через запасной — `downloaded <url> via fallback firefox`. Частые такие строки — сигнал, что TikTok что-то поменял.
 
 ## Использование
 
@@ -17,7 +27,7 @@ Inline Telegram-бот на aiogram 3 для скачивания видео и 
 
 | Модуль | Ответственность |
 |---|---|
-| `bot/downloaders/` | `Downloader` (протокол), `TikTokDLDownloader` (адаптер библиотеки), `PageDataDownloader`, `FallbackDownloader` (цепочка) |
+| `bot/downloaders/` | `Downloader` (протокол), `HttpDownloader`, `FirefoxDownloader`, `FallbackDownloader` (цепочка), `tiktok_page` (разбор страницы) |
 | `bot/publisher.py` | `TelegramPublisher` — загружает файлы в `STORAGE_CHAT_ID`, возвращает переиспользуемые `file_id` |
 | `bot/cache.py` | `JsonPostCache` — URL/id поста → `file_id` |
 | `bot/service.py` | `MediaService` — кэш, дедупликация параллельных загрузок, лимит параллелизма, таймаут, лимит 50 МБ |

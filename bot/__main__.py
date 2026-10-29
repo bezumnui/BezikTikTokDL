@@ -5,14 +5,17 @@ from aiogram import Bot, Dispatcher
 
 from .cache import JsonPostCache
 from .config import Config, load_config
-from .downloaders import FallbackDownloader, PageDataDownloader, TikTokDLDownloader
+from .downloaders import FallbackDownloader, FirefoxDownloader, HttpDownloader
 from .handlers import chat, inline
 from .publisher import TelegramPublisher
 from .service import MediaService
 
+log = logging.getLogger("bot")
+
 
 def build_media_service(bot: Bot, config: Config) -> MediaService:
-    downloader = FallbackDownloader([TikTokDLDownloader(), PageDataDownloader()])
+    downloader = FallbackDownloader([HttpDownloader(), FirefoxDownloader()])
+    log.info("downloaders: %s", downloader.describe())
     return MediaService(
         downloader=downloader,
         publisher=TelegramPublisher(bot, config.storage_chat_id),

@@ -1,6 +1,6 @@
 from .base import Downloader
 from .chain import FallbackDownloader
-from .page_data import PageDataDownloader
-from .tiktokdl import TikTokDLDownloader
+from .firefox import FirefoxDownloader
+from .http import HttpDownloader
 
-__all__ = ["Downloader", "FallbackDownloader", "PageDataDownloader", "TikTokDLDownloader"]
+__all__ = ["Downloader", "FallbackDownloader", "FirefoxDownloader", "HttpDownloader"]
