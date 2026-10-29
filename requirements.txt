@@ -1,0 +1,4 @@
+aiogram>=3.13,<4
+python-dotenv>=1.0
+tiktok-dlpy==2.2.1
+playwright>=1.45

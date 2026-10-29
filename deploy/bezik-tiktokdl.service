@@ -1,0 +1,16 @@
+[Unit]
+Description=BezikTikTokDL Telegram bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=bezik
+WorkingDirectory=/home/bezik/BezikTikTokDL
+ExecStart=/home/bezik/BezikTikTokDL/.venv/bin/python -m bot
+Restart=always
+RestartSec=10
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

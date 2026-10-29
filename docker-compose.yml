@@ -1,0 +1,13 @@
+services:
+  bot:
+    build: .
+    image: bezik-tiktokdl:latest
+    container_name: bezik-tiktokdl
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATA_DIR: /app/data
+    volumes:
+      - ./data:/app/data
+    shm_size: 512mb
+    init: true
