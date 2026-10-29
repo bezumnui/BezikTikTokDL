@@ -58,4 +58,5 @@ def _load_post(data: dict) -> PublishedPost:
         kind=MediaKind(data["kind"]),
         file_ids=tuple(data["file_ids"]),
         description=data.get("description", ""),
+        fallback=data.get("fallback", False),
     )

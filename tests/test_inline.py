@@ -63,6 +63,7 @@ async def test_invite_sends_invitation(text):
     await inline_query(query, FakeBot(), FakeMedia(error=AssertionError("must not download")), CONFIG)
     [result] = query.answers[0][0]
     assert "@bezik_bot" in result.input_message_content.message_text
+    assert "My sources: https://github.com/bezumnui/BezikTikTokDL" in result.input_message_content.message_text
     buttons = [b for row in result.reply_markup.inline_keyboard for b in row]
     assert buttons[0].url == "https://t.me/bezik_bot?startgroup=true"
 

@@ -9,6 +9,7 @@ from aiogram.types import (
     InlineQuery,
     InlineQueryResultArticle,
     InputTextMessageContent,
+    LinkPreviewOptions,
 )
 
 from ..config import Config
@@ -26,15 +27,20 @@ INVITE_KEYWORD = "invite"
 INVITE_TEXT = (
     "📥 I download TikTok videos right in Telegram with @{username}\n\n"
     "• Type <code>@{username} TikTok link</code> in any chat\n"
-    "• Or add the bot to a group and send /sub: it will download every TikTok link automatically"
+    "• Or add the bot to a group and send /sub: it will download every TikTok link automatically\n\n"
+    "My sources: {source_url}"
 )
+SOURCE_URL = "https://github.com/bezumnui/BezikTikTokDL"
 
 
 def _article(prefix: str, key: str, title: str, text: str, description: str | None = None,
              markup: InlineKeyboardMarkup | None = None, html: bool = False) -> InlineQueryResultArticle:
     return InlineQueryResultArticle(
         id=result_id(prefix, key), title=title, description=description,
-        input_message_content=InputTextMessageContent(message_text=text, parse_mode="HTML" if html else None),
+        input_message_content=InputTextMessageContent(
+            message_text=text, parse_mode="HTML" if html else None,
+            link_preview_options=LinkPreviewOptions(is_disabled=True),
+        ),
         reply_markup=markup,
     )
 
@@ -44,8 +50,8 @@ def invite_article(username: str) -> InlineQueryResultArticle:
         [InlineKeyboardButton(text="Add to group", url=f"https://t.me/{username}?startgroup=true")],
         [InlineKeyboardButton(text="Open bot", url=f"https://t.me/{username}")],
     ])
-    return _article("invite", username, "Invite to use the bot", INVITE_TEXT.format(username=username),
-                    "Send an invitation to this chat", markup, html=True)
+    text = INVITE_TEXT.format(username=username, source_url=SOURCE_URL)
+    return _article("invite", username, "Invite to use the bot", text, "Send an invitation to this chat", markup, html=True)
 
 
 def help_article(username: str) -> InlineQueryResultArticle:

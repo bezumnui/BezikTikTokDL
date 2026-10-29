@@ -36,7 +36,7 @@ class TelegramPublisher:
             file_ids = (await self._upload_video(post),)
         else:
             file_ids = await self._upload_photos(post)
-        return PublishedPost(post.post_id, post.author, post.kind, file_ids, post.description)
+        return PublishedPost(post.post_id, post.author, post.kind, file_ids, post.description, post.fallback)
 
     async def _upload_video(self, post: DownloadedPost) -> str:
         message = await self._bot.send_video(

@@ -13,7 +13,7 @@ An inline Telegram bot (aiogram 3) that downloads TikTok videos and photo slides
 - **Inline:** `@bot https://vt.tiktok.com/…` in any chat. If the video isn't cached and doesn't download within
   `INLINE_WAIT_SECONDS`, a "⏳ Downloading…" placeholder is sent and later replaced with the video.
   This needs `/setinlinefeedback` enabled in @BotFather.
-- **Invite:** `@bot invite` (or just `@bot inv`) sends an invitation to use the bot, with "Add to group" and "Open bot" buttons.
+- **Invite:** `@bot invite` (or just `@bot inv`) sends an invitation to use the bot with a link to the sources, plus "Add to group" and "Open bot" buttons.
 
 Inline queries can't see the message you are replying to: Telegram only sends the typed text.
 To take the link from a replied message, use `/dl` or a mention in a group where the bot is present.
@@ -27,6 +27,7 @@ To take the link from a replied message, use `/dl` or a mention in a group where
    HTTP doesn't pass. Takes ~3–4 s.
 
 On startup the bot logs the chain: `downloaders: http (primary) -> firefox (fallback)`.
+Videos downloaded via the fallback get a `⚠️fallback` line in their caption.
 When the primary fails, the log shows `WARNING ... http failed for <url>: ...; using fallback firefox`, and on success
 `downloaded <url> via fallback firefox`. Frequent lines like these mean TikTok changed something.
 

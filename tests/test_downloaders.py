@@ -121,6 +121,7 @@ async def test_fallback_uses_next_on_failure_and_logs_it(tmp_path, caplog):
     with caplog.at_level(logging.WARNING):
         post = await FallbackDownloader([broken, working]).download("u", tmp_path)
     assert post.post_id == "123"
+    assert post.fallback is True
     assert broken.calls == working.calls == ["u"]
     assert "http failed for u: captcha; using fallback firefox" in caplog.text
     assert "downloaded u via fallback firefox" in caplog.text
@@ -129,7 +130,8 @@ async def test_fallback_uses_next_on_failure_and_logs_it(tmp_path, caplog):
 async def test_fallback_stops_at_first_success(tmp_path, caplog):
     first, second = FakeDownloader(), FakeDownloader()
     with caplog.at_level(logging.WARNING):
-        await FallbackDownloader([first, second]).download("u", tmp_path)
+        post = await FallbackDownloader([first, second]).download("u", tmp_path)
+    assert post.fallback is False
     assert second.calls == []
     assert caplog.text == ""
 

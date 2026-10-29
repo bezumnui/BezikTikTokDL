@@ -37,7 +37,7 @@ class FakePublisher:
         assert all(f.exists() for f in post.files), "files must exist while publishing"
         self.published.append(post)
         ids = tuple(f"id-{i}" for i in range(len(post.files)))
-        return PublishedPost(post.post_id, post.author, post.kind, ids, post.description)
+        return PublishedPost(post.post_id, post.author, post.kind, ids, post.description, post.fallback)
 
 
 class MemoryCache:

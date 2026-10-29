@@ -1,4 +1,5 @@
 import logging
+from dataclasses import replace
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -39,5 +40,6 @@ class FallbackDownloader:
                 continue
             if idx:
                 log.warning("downloaded %s via fallback %s", url, downloader.name)
+                return replace(post, fallback=True)
             return post
         raise DownloadError("; ".join(errors))

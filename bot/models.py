@@ -23,6 +23,7 @@ class DownloadedPost:
     kind: MediaKind
     files: tuple[Path, ...]
     description: str = ""
+    fallback: bool = False
 
 
 @dataclass(frozen=True)
@@ -34,7 +35,11 @@ class PublishedPost:
     kind: MediaKind
     file_ids: tuple[str, ...]
     description: str = ""
+    fallback: bool = False
 
     @property
     def caption(self) -> str:
-        return f"@{self.author}" if self.author else ""
+        lines = [f"@{self.author}"] if self.author else []
+        if self.fallback:
+            lines.append("⚠️fallback")
+        return "\n".join(lines)

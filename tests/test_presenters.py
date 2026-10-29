@@ -27,6 +27,14 @@ def test_inline_slides():
     assert len({r.id for r in results}) == 12
 
 
+def test_fallback_mark_in_caption():
+    post = PublishedPost("1", "neo", MediaKind.VIDEO, ("vid",), fallback=True)
+    assert post.caption == "@neo\n⚠️fallback"
+    assert inline_results(post)[0].caption == "@neo\n⚠️fallback"
+    assert PublishedPost("1", "", MediaKind.VIDEO, ("vid",), fallback=True).caption == "⚠️fallback"
+    assert VIDEO.caption == "@neo"
+
+
 def test_single_media():
     assert isinstance(single_media(VIDEO), InputMediaVideo)
     photo = single_media(SLIDES)

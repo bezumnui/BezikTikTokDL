@@ -20,6 +20,12 @@ def test_persists_between_instances(tmp_path):
     assert reloaded.get("42").kind is MediaKind.PHOTOS
 
 
+def test_fallback_flag_persists(tmp_path):
+    path = tmp_path / "c.json"
+    JsonPostCache(path).put(["u"], PublishedPost("1", "a", MediaKind.VIDEO, ("v",), fallback=True))
+    assert JsonPostCache(path).get("u").fallback is True
+
+
 def test_same_post_from_different_urls(tmp_path):
     cache = JsonPostCache(tmp_path / "c.json")
     cache.put(["u1"], POST)
