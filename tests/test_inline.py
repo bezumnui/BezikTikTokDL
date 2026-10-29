@@ -14,6 +14,8 @@ CONFIG = SimpleNamespace(inline_wait=0.05)
 class FakeQuery:
     def __init__(self, text):
         self.query = text
+        self.id = "q1"
+        self.from_user = SimpleNamespace(id=1)
         self.answers = []
 
     async def answer(self, results, **kwargs):
@@ -72,7 +74,7 @@ async def test_download_error_is_answered():
 
 
 def chosen_result(result_id):
-    return SimpleNamespace(result_id=result_id, inline_message_id="imid", query=URL)
+    return SimpleNamespace(result_id=result_id, inline_message_id="imid", query=URL, from_user=SimpleNamespace(id=1))
 
 
 async def test_placeholder_is_replaced_with_video():

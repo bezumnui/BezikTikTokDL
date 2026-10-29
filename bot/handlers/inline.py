@@ -33,6 +33,7 @@ def _article(prefix: str, key: str, title: str, text: str, description: str | No
 
 @router.inline_query()
 async def inline_query(query: InlineQuery, media: MediaService, config: Config) -> None:
+    log.info("inline query %s from %s: %r", query.id, query.from_user.id, query.query)
     url = find_tiktok_url(query.query)
     if url is None:
         await query.answer(
@@ -66,6 +67,7 @@ async def inline_query(query: InlineQuery, media: MediaService, config: Config) 
 
 @router.chosen_inline_result()
 async def chosen(result: ChosenInlineResult, bot: Bot, media: MediaService) -> None:
+    log.info("chosen inline result %s from %s", result.result_id, result.from_user.id)
     if not result.result_id.startswith(PENDING_PREFIX) or not result.inline_message_id:
         return
     url = find_tiktok_url(result.query)
